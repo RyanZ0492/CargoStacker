@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CargoStacker.Models;
+using CargoStacker.Services;
+using System;
 
-namespace CargoStacker
+class Program
 {
-    class Program
+    static void Main()
     {
-        static void Main(string[] args)
-        {
-        }
+        CargoShip ship = new CargoShip(200000); // Max 200 tons
+
+        ship.AddContainer(new StandardContainer(30000)); // 30 tons
+        ship.AddContainer(new ValuableContainer(25000)); // 25 tons
+
+        Console.WriteLine($"Ship Balanced? {ship.IsBalanced()}");
     }
 }
