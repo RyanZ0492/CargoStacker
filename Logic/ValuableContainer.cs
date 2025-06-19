@@ -10,7 +10,5 @@ namespace Models
         {
             return false;
         }
-
     }
-
 }

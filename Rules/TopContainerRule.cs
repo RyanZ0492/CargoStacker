@@ -4,11 +4,12 @@ using Rules.Interfaces;
 
 namespace Rules
 {
-    public class ValuableContainerRule : IStackingRule
+    public class TopContainerRule : IStackingRule
     {
+        // If the rule fails, this message is used.
         public string FailureMessage
         {
-            get { return "ValuableContainerRule"; }
+            get { return "Container restriction"; }
         }
 
         public bool Validate(List<IContainer> containerStack, IContainer candidate)
@@ -19,15 +20,17 @@ namespace Rules
             }
             else
             {
+                // Get the last container in the list.
                 int lastIndex = containerStack.Count - 1;
                 IContainer topContainer = containerStack[lastIndex];
-                if (topContainer.IsValuable == true)
+                bool allowed = candidate.CanStackOnTop(topContainer);
+                if (allowed == true)
                 {
-                    return false;
+                    return true;
                 }
                 else
                 {
-                    return true;
+                    return false;
                 }
             }
         }

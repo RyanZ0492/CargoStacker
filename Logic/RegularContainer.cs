@@ -1,5 +1,4 @@
-﻿using Models;
-using Models.Interfaces;
+﻿using Models.Interfaces;
 
 namespace Models
 {
@@ -9,8 +8,10 @@ namespace Models
 
         public override bool CanStackOnTop(IContainer lower)
         {
-            return lower.Weight + this.Weight <= 120000; // Max stacking limit
+            if (lower.IsValuable)
+                return false;
+
+            return (lower.Weight + this.Weight) <= 120000;
         }
     }
-
 }

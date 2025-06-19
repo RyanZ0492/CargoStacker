@@ -1,9 +1,8 @@
-﻿using Models.Interfaces;
-
-namespace Rules.Interfaces
+﻿namespace Rules.Interfaces
 {
     public interface IStackingRule
     {
-        bool Validate(IContainer lower, IContainer upper);
+        bool Validate(List<Models.Interfaces.IContainer> stack, Models.Interfaces.IContainer candidate);
+        string FailureMessage { get; }
     }
 }

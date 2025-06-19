@@ -1,43 +1,48 @@
-﻿using Models.Interfaces;
-using Services.Results;
+﻿using System.Collections.Generic;
+using Models.Interfaces;
+using Models.Results;
 using Rules.Interfaces;
-using Rules;
 
 namespace Services
 {
-    public class StackingService : IStackingService
+    public class StackingService : IStackingEvaluator
     {
-        private readonly List<IStackingRule> rules;
+        // List of rules that will be run in the order provided.
+        private readonly List<IStackingRule> stackingRules;
 
-        public StackingService()
+        // Constructor expects a list of rules.
+        public StackingService(List<IStackingRule> rules)
         {
-            rules = new List<IStackingRule>
-            {
-                new ValuableContainerRule(),
-                new StackWeightLimitRule()
-            };
+            stackingRules = rules;
         }
 
-        public StackingResult ValidateStacking(IContainer lower, IContainer upper)
+        public StackingResult ValidateStacking(List<IContainer> containerStack, IContainer candidate)
         {
-            if (upper.CanStackOnTop(lower) == false)
+            // Check each rule one at a time.
+            for (int containers = 0; containers < stackingRules.Count; containers++)
             {
-                return StackingResult.FailureResult("Stacking rule violated: Container restriction", lower.Weight + upper.Weight);
-            }
+                IStackingRule rule = stackingRules[containers];
+                bool rulePassed = rule.Validate(containerStack, candidate);
 
-            foreach (var rule in rules)
-            {
-                bool rulePassed = rule.Validate(lower, upper);
                 if (rulePassed == false)
                 {
-                    string ruleName = rule.GetType().Name;
-                    return StackingResult.FailureResult($"Stacking rule violated: {ruleName}", lower.Weight + upper.Weight);
+                    int totalAfterCandidate = CalculateTotalWeight(containerStack) + candidate.Weight;
+                    return StackingResult.FailureResult("Stacking rule violated: " + rule.FailureMessage, totalAfterCandidate);
                 }
             }
-
-            return StackingResult.SuccessResult(lower.Weight + upper.Weight);
+            int newTotalWeight = CalculateTotalWeight(containerStack) + candidate.Weight;
+            return StackingResult.SuccessResult(newTotalWeight);
         }
 
-
+        // A simple helper that calculates the total weight.
+        private int CalculateTotalWeight(List<IContainer> containerStack)
+        {
+            int total = 0;
+            for (int index = 0; index < containerStack.Count; index++)
+            {
+                total = total + containerStack[index].Weight;
+            }
+            return total;
+        }
     }
 }
