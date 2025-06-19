@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
 
 namespace Models.Interfaces
 {
@@ -12,5 +9,4 @@ namespace Models.Interfaces
         bool IsValuable { get; }
         bool CanStackOnTop(IContainer lower);
     }
-
 }

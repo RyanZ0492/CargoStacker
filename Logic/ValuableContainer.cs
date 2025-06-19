@@ -6,10 +6,10 @@ namespace Models
     {
         public ValuableContainer(int weight) : base(weight, true) { }
 
-public override bool CanStackOnTop(IContainer lower)
-{
-    return false; // Nothing can be stacked on valuable cargo
-}
+        public override bool CanStackOnTop(IContainer lower)
+        {
+            return false;
+        }
 
     }
 

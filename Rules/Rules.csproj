@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Logic\Models.csproj" />
-    <ProjectReference Include="..\Rules\Rules.csproj" />
   </ItemGroup>
 
 </Project>

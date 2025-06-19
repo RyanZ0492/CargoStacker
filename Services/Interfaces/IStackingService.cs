@@ -1,6 +1,7 @@
 ﻿using Models.Interfaces;
+using Services.Results;
 
 public interface IStackingService
 {
-    bool ValidateStacking(IContainer lower, IContainer upper);
+    StackingResult ValidateStacking(IContainer lower, IContainer upper);
 }

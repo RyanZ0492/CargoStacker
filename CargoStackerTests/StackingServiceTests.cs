@@ -1,79 +1,107 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Models;
-using CargoStacker.Services;
+using Services;
 using Models.Interfaces;
+using Services.Results;
 
 namespace CargoStacker.Tests
 {
     [TestClass]
     public class StackingServiceTests
     {
-        private StackingService manager;
+        private StackingService StackingValidator;
 
         [TestInitialize]
         public void Setup()
         {
-            manager = new StackingService();
+            StackingValidator  = new StackingService();
         }
 
-        // ✅ Weight Limit Test
-        [TestMethod]
-        public void Containers_Exceeding_Weight_Limit_Should_Not_Stack()
-        {
-            IContainer lower = new RegularContainer(100000);
-            IContainer upper = new RegularContainer(30000);
-
-            Assert.IsFalse(manager.ValidateStacking(lower, upper), "Containers exceeding 120000kg should not stack.");
-        }
-
-        // ✅ Valid Stack Test
         [TestMethod]
         public void Containers_Under_Weight_Limit_Should_Stack()
         {
-            IContainer lower = new RegularContainer(60000);
-            IContainer upper = new RegularContainer(40000);
+            IContainer mediumLower = new RegularContainer(25000);
+            IContainer mediumUpper = new RegularContainer(20000);
 
-            Assert.IsTrue(manager.ValidateStacking(lower, upper), "Containers within the weight limit should stack.");
+            StackingResult result = StackingValidator.ValidateStacking(mediumLower, mediumUpper);
+
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual("Stacking successful.", result.Message);
         }
 
-        // ✅ Stacking on Empty Container Test
         [TestMethod]
         public void EmptyContainer_Should_Allow_Stacking()
         {
-            IContainer empty = new RegularContainer(4000); // Assuming an empty container weighs 4000kg
-            IContainer regular = new RegularContainer(25000);
+            IContainer emptyLower = new RegularContainer(4000);
+            IContainer regularUpper = new RegularContainer(25000);
 
-            Assert.IsTrue(manager.ValidateStacking(empty, regular), "An empty container should allow stacking.");
+            StackingResult result = StackingValidator.ValidateStacking(emptyLower, regularUpper);
+
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual("Stacking successful.", result.Message);
         }
 
-        // ✅ Stacking Limit Edge Case Test
         [TestMethod]
         public void Containers_At_Exactly_Weight_Limit_Should_Stack()
         {
-            IContainer lower = new RegularContainer(70000);
-            IContainer upper = new RegularContainer(50000);
+            IContainer maxLimitLower = new RegularContainer(30000);
+            IContainer maxLimitUpper = new RegularContainer(30000);
 
-            Assert.IsTrue(manager.ValidateStacking(lower, upper), "Containers at exactly 120000kg should stack.");
+            StackingResult result = StackingValidator.ValidateStacking(maxLimitLower, maxLimitUpper);
+
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual("Stacking successful.", result.Message);
         }
 
-        // ✅ Valuable Container Test
         [TestMethod]
         public void ValuableContainer_Should_Not_Allow_Stacking()
         {
-            IContainer valuable = new ValuableContainer(25000);
-            IContainer regular = new RegularContainer(30000);
+            IContainer valuableLower = new ValuableContainer(25000);
+            IContainer regularUpper = new RegularContainer(10000);
 
-            Assert.IsFalse(manager.ValidateStacking(valuable, regular), "A valuable container should not allow stacking.");
+            StackingResult result = StackingValidator.ValidateStacking(valuableLower, regularUpper);
+
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("Stacking rule violated: ValuableContainerRule", result.Message);
         }
 
-        // ✅ Stacking on Valuable Container Edge Case
         [TestMethod]
         public void ValuableContainer_With_Minimum_Weight_Should_Not_Allow_Stacking()
         {
-            IContainer valuable = new ValuableContainer(5000);
-            IContainer regular = new RegularContainer(10000);
+            IContainer valuableLower = new ValuableContainer(5000);
+            IContainer regularUpper = new RegularContainer(10000);
 
-            Assert.IsFalse(manager.ValidateStacking(valuable, regular), "A valuable container should never allow stacking, even at minimum weight.");
+            StackingResult result = StackingValidator.ValidateStacking(valuableLower, regularUpper);
+
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("Stacking rule violated: ValuableContainerRule", result.Message);
+        }
+
+        [TestMethod]
+        public void ValuableContainerRule_Should_Reject_Stacking()
+        {
+            IContainer valuableLower = new ValuableContainer(5000);
+            IContainer regularUpper = new RegularContainer(10000);
+
+            StackingResult result = StackingValidator.ValidateStacking(valuableLower, regularUpper);
+
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("Stacking rule violated: ValuableContainerRule", result.Message);
+        }
+
+        [TestMethod]
+        public void Containers_Exceeding_Weight_Limit_Should_Not_Stack()
+        {
+            IContainer heavyLower = new RegularContainer(30000);
+            IContainer heavyUpper = new RegularContainer(30000);
+            IContainer extraUpper = new RegularContainer(30000);
+
+            StackingResult result = StackingValidator.ValidateStacking(heavyLower, heavyUpper);
+            StackingResult secondStackResult = StackingValidator.ValidateStacking(heavyUpper, extraUpper);
+
+            Assert.IsTrue(result.Success);
+            Assert.IsFalse(secondStackResult.Success);
+            Assert.AreEqual("Stacking rule violated: StackWeightLimitRule", secondStackResult.Message);
         }
     }
 }
