@@ -7,10 +7,8 @@ namespace Services
 {
     public class StackingService : IStackingEvaluator
     {
-        // List of rules that will be run in the order provided.
         private readonly List<IStackingRule> stackingRules;
 
-        // Constructor expects a list of rules.
         public StackingService(List<IStackingRule> rules)
         {
             stackingRules = rules;
@@ -19,9 +17,9 @@ namespace Services
         public StackingResult ValidateStacking(List<IContainer> containerStack, IContainer candidate)
         {
             // Check each rule one at a time.
-            for (int containers = 0; containers < stackingRules.Count; containers++)
+            for (int rules = 0; rules < stackingRules.Count; rules++)
             {
-                IStackingRule rule = stackingRules[containers];
+                IStackingRule rule = stackingRules[rules];
                 bool rulePassed = rule.Validate(containerStack, candidate);
 
                 if (rulePassed == false)
@@ -34,7 +32,6 @@ namespace Services
             return StackingResult.SuccessResult(newTotalWeight);
         }
 
-        // A simple helper that calculates the total weight.
         private int CalculateTotalWeight(List<IContainer> containerStack)
         {
             int total = 0;

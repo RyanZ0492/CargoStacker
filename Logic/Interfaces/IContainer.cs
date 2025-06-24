@@ -1,6 +1,4 @@
 ﻿
-
-
 namespace Models.Interfaces
 {
     public interface IContainer
